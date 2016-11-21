@@ -26,7 +26,7 @@ var Engine = (function(global) {
         lastTime;
 
     canvas.width = 505*2;
-    canvas.height = 707;
+    canvas.height = 909;
     doc.body.appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
@@ -107,16 +107,25 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
+        var water = 'images/water-block.png';
+        var stone = 'images/stone-block.png';
+        var grass = 'images/grass-block.png';
+        var rock = 'images/rock.png';
+        var exit = 'images/Selector.png';
+
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 7 of stone
-                'images/stone-block.png',   // Row 2 of 7 of stone
-                'images/stone-block.png',   // Row 3 of 7 of stone
-                'images/stone-block.png',   // Row 3 of 7 of stone
-                'images/stone-block.png',   // Row 3 of 7 of stone
-                'images/grass-block.png'    // Row 2 of 2 of grass
+              [grass,exit,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,water,water,water,grass,grass,grass],
+              [grass,grass,grass,water,water,grass,water,grass,grass,grass],
+              [grass,water,water,water,grass,grass,water,grass,grass,grass],
+              [water,water,grass,grass,grass,grass,water,stone,water,water],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
             ],
-            numRows = 7,
+            numRows = 9,
             numCols = 5*2,
             row, col;
 
@@ -133,7 +142,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                ctx.drawImage(Resources.get(rowImages[row][col]), col * 101, row * 83);
             }
         }
         ctx.clearRect(0,0,1010,50);
@@ -154,7 +163,9 @@ var Engine = (function(global) {
 
         player.render();
         gem.render();
-        heart.render();
+        allRocks.forEach(function(rock) {
+            rock.render();
+        });
     }
 
     /* This function does nothing but it could have been a good place to
@@ -176,7 +187,9 @@ var Engine = (function(global) {
         'images/enemy-bug.png',
         'images/char-boy.png',
         'images/gem-blue.png',
-        'images/Heart.png'
+        'images/enemy-bug-left.png',
+        'images/Rock.png',
+        'images/Selector.png'
     ]);
     Resources.onReady(init);
 
