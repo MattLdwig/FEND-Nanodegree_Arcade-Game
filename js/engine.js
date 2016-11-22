@@ -112,6 +112,7 @@ var Engine = (function(global) {
         var grass = 'images/grass-block.png';
         var rock = 'images/rock.png';
         var exit = 'images/Selector.png';
+        var gem = 'images/gem-blue.png';
 
         var rowImages = [
               [grass,exit,grass,grass,grass,grass,grass,grass,grass,grass],
@@ -162,9 +163,12 @@ var Engine = (function(global) {
         });
 
         player.render();
+
+        allGems.forEach(function(gem) {
         gem.render();
+        });
         allRocks.forEach(function(rock) {
-            rock.render();
+        rock.render();
         });
     }
 
