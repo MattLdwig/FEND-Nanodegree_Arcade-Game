@@ -144,6 +144,9 @@ var Engine = (function(global) {
                  * we're using them over and over.
                  */
                 ctx.drawImage(Resources.get(rowImages[row][col]), col * 101, row * 83);
+                if(playerWin){
+                  ctx.fillText('win',300,300);
+                }
             }
         }
         ctx.clearRect(0,0,1010,50);
