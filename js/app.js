@@ -20,7 +20,7 @@ var Enemy = function(x, y, moveRight) {
   this.height = 50;
     switch (level) {
       case 1:
-        this.speed =  200;
+        this.speed =  400;
         break;
       case 2:
         this.speed =  200;
@@ -102,8 +102,8 @@ Player.prototype.changePosition = function() {
 }
 
 Player.prototype.reset = function(x, y) {
-  this.width = 68;
-  this.height = 76;
+  this.width = 101;
+  this.height = 171;
   this.col = 8;
   this.row = 8;
   this.movable = true;
@@ -137,10 +137,10 @@ Player.prototype.handleInput = function(key) {
 
 Player.prototype.update = function(dt) {
 
-  if (this.movable && !(checkIfCollide())) {
+  //if (this.movable && !(checkIfCollide())) {
     this.x = 101 * this.col;
     this.y = (83 * this.row) - 30;
-  }
+  //}
   //if (this.y < 0 && this.movable && this.x === 101) {
   if (this.y === 634 && this.movable && this.x === 707) {
     this.movable = false;
@@ -178,16 +178,16 @@ Player.prototype.render = function() {
 // GEMS
 var Gem = function(x, y) {
   this.sprite = 'images/gem-blue.png';
-  this.x = x;
-  this.y = y;
+  this.x = x+30;
+  this.y = y+50;
   this.width = 101;
   this.height = 171;
-  this.spriteWidth = 101/2;
-  this.spriteHeight = 171 /2;
+  this.spriteWidth = this.width/2;
+  this.spriteHeight = this.height/2;
 }
 
 Gem.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite),this.x, this.y, this.spriteWidth,this.spriteHeight);
+  ctx.drawImage(Resources.get(this.sprite),this.x, this.y,this.spriteWidth,this.spriteHeight);
 }
 
 var allGems = [];
@@ -198,8 +198,8 @@ var Rock = function(x, y) {
   this.sprite = 'images/Rock.png';
   this.x = x;
   this.y = y;
-  this.width = 86;
-  this.height = 56;
+  this.width = 101;
+  this.height = 171;
 }
 
 Rock.prototype.render = function() {
@@ -216,7 +216,7 @@ function itemsByLevel(level) {
       allRocks.push(new Rock(101, 551));
       allRocks.push(new Rock(707, 551));
       allRocks.push(new Rock(303, 385));
-      allGems.push(new Gem(0, 468));
+      allGems.push(new Gem(0, 551));
       //allGems.push(new Gem(505, 136));
       //allGems.push(new Gem(323, 362));
       break;
@@ -255,57 +255,52 @@ var hightScore = [0];
 
 var player = new Player(808, 634);
 
-
 var checkIfCollide = function() {
 
-  var hitBox = function(width, height, x, y) {
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
+  var hitBox = function(left,top) {
+    this.left = left + 35;
+    this.top = top + 20;
+    this.right = this.left + 65;
+    this.bottom = this.top + 62
   }
 
   checkCollision = function(avatar, items) {
-    if ((avatar.x < items.x + items.width &&
-        avatar.x + avatar.width > items.x &&
-        avatar.y < items.y + items.height &&
-        avatar.height + avatar.y > items.y)) {
-      return true;
-    }
+    return !(avatar.left > items.right ||
+            avatar.right < items.left ||
+            avatar.top > items.bottom ||
+            avatar.bottom < items.top)
   }
-
-  var playerHitbox = new hitBox(player.width, player.height, player.x, player.y);
+  var playerHitbox = new hitBox(player.x, player.y);
 // TO DO
 // Reorganiser la fonction pour ne pas doubler la création de hitbox
   for (var i = 0; i < allRocks.length; i++) {
-    var rocksHitBox = new hitBox(allRocks[i].width, allRocks[i].height, allRocks[i].x, allRocks[i].y);
+    var rocksHitBox = new hitBox(allRocks[i].x, allRocks[i].y);
     if (checkCollision(playerHitbox, rocksHitBox)) {
       player.block();
     }
     for (var j = 0; j < allEnemies.length; j++) {
-      var EnemiesHitBox = new hitBox(allEnemies[j].width, allEnemies[j].height, allEnemies[j].x, allEnemies[j].y);
-      if(checkCollision(EnemiesHitBox,rocksHitBox)){
-        allEnemies[j].moveRight = ! allEnemies[j].moveRight;
-        break;
+      var EnemiesHitBox = new hitBox(allEnemies[j].x, allEnemies[j].y);
+        if(checkCollision(EnemiesHitBox,rocksHitBox)){
+          allEnemies[j].moveRight = !allEnemies[j].moveRight;
+          break;
       }
     }
   }
 
   for (var i = 0; i < allEnemies.length; i++) {
-    var EnemiesHitBox = new hitBox(allEnemies[i].width, allEnemies[i].height, allEnemies[i].x, allEnemies[i].y);
+    var EnemiesHitBox = new hitBox(allEnemies[i].x, allEnemies[i].y);
     if (checkCollision(playerHitbox, EnemiesHitBox)) {
-      //player.reset();
+     //player.reset();
     }
   }
   for (var i = 0; i < allGems.length; i++) {
-    var gemsHitBox = new hitBox(allGems[i].width, allGems[i].height, allGems[i].x, allGems[i].y);
+    var gemsHitBox = new hitBox(allGems[i].x, (allGems[i].y-50));
     if (checkCollision(playerHitbox, gemsHitBox)) {
       player.gem += 1;
       allGems.splice(i, 1);
       break;
     }
   }
-
 }
 itemsByLevel(level);
 resetBugs(level);
