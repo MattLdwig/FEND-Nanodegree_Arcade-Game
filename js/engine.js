@@ -109,7 +109,7 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-        var water = 'images/water-block.png';
+
         var stone = 'images/stone-block.png';
         var grass = 'images/grass-block.png';
         var rock = 'images/rock.png';
@@ -118,10 +118,10 @@ var Engine = (function(global) {
 
         var rowImages = [
               [grass,exit,grass,grass,grass,grass,grass,grass,grass,grass],
-              [grass,grass,grass,grass,water,water,water,grass,grass,grass],
-              [grass,grass,grass,water,water,grass,water,grass,grass,grass],
-              [grass,water,water,water,grass,grass,water,grass,grass,grass],
-              [water,water,grass,grass,grass,grass,water,stone,water,water],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
+              [grass,grass,grass,grass,grass,grass,grass,stone,grass,grass],
               [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
               [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
               [grass,grass,grass,grass,grass,grass,grass,grass,grass,grass],
@@ -147,7 +147,14 @@ var Engine = (function(global) {
                  */
                 ctx.drawImage(Resources.get(rowImages[row][col]), col * 101, row * 83);
                 if(playerWin){
-                  ctx.fillText('win',300,300);
+                  ctx.clearRect(0,0,1010,909);
+                  ctx.fillStyle = 'Black';
+                  ctx.font = '30px Roboto'
+                  ctx.fillText('Congratulation !',0,150);
+                  ctx.fillText('You reach the end of the game !',0,200);
+                  ctx.fillText('Vous avez été touché ' + numOfTry + ' fois et vous avez récupérez ' + player.gem + ' gemmes sur 15',0,250);
+                  ctx.fillText('Press F5 for retry!',0,300);
+                  ctx.fillText('Thanks for playing :)',0,350);
                 }
             }
         }
@@ -190,7 +197,7 @@ var Engine = (function(global) {
      */
     Resources.load([
         'images/stone-block.png',
-        'images/water-block.png',
+        'images/grass-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
