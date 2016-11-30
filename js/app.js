@@ -23,7 +23,7 @@ var Enemy = function(x, y, moveRight) {
   // Setup speed depending on the level
   switch (level) {
     case 1:
-      this.speed = 200;
+      this.speed = 220;
       break;
     case 2:
       this.speed = 250;
@@ -45,12 +45,24 @@ Enemy.prototype.update = function(dt) {
   if (this.moveRight) {
     this.x += this.speed * dt;
     this.sprite = 'images/enemy-bug.png';
-    /* if the bug hit the end of the canvas or hit a rock, bug move to right to left
-       and display the proper sprite */
-    if (this.x > this.endCanvas || checkIfCollide()) {
-      this.moveRight = false;
-    }
-    // else if the bug move from right to left, display the proper sprite
+      /* if the player is in the first level, the bugs cross the screen
+         and doesn't collide with the rocks. Otherwise they remain within the
+         limits of the canvas and collide with the rocks */
+       switch (level) {
+         case 1:
+           if(this.x > this.endCanvas+100){
+             this.x = Math.floor((Math.random() * 100)-100);
+           }
+           break;
+        case 2:
+        case 3:
+        if (this.x > this.endCanvas || checkIfCollide()) {
+          this.moveRight = false;
+        }
+        default:
+            this.moveRight = true;
+       }
+    // if the bug move from right to left, display the proper sprite
   } else {
     this.sprite = 'images/enemy-bug-left.png';
     this.x -= this.speed * dt;
@@ -62,6 +74,7 @@ Enemy.prototype.update = function(dt) {
   }
 };
 
+
 var allEnemies = [];
 
 // Empty allEnemies and push the bugs in the array depending on the level
@@ -69,11 +82,11 @@ var resetBugs = function(level) {
   allEnemies = [];
   switch (level) {
     case 1:
-      allEnemies.push(new Enemy(202, -30, true));
-      allEnemies.push(new Enemy(707, 219, true));
-      allEnemies.push(new Enemy(0, 385, true));
-      allEnemies.push(new Enemy(404, 385, true));
-      allEnemies.push(new Enemy(202, 551, true));
+      allEnemies.push(new Enemy(-80, -30, true));
+      allEnemies.push(new Enemy(-10, 219, true));
+      allEnemies.push(new Enemy(-30, 385, true));
+      allEnemies.push(new Enemy(-150, 385, true));
+      allEnemies.push(new Enemy(-70, 551, true));
       break;
     case 2:
       allEnemies.push(new Enemy(202, 551, true));
@@ -326,7 +339,7 @@ var checkIfCollide = function() {
        avoid the collision loop */
     for (var j = 0; j < allEnemies.length; j++) {
       var EnemiesHitBox = new hitBox(allEnemies[j].x-30, allEnemies[j].y-20);
-      if (checkCollision(EnemiesHitBox, rocksHitBox)) {
+      if (checkCollision(EnemiesHitBox, rocksHitBox) && level > 1) {
         allEnemies[j].moveRight = !allEnemies[j].moveRight;
         allEnemies[j].x = allEnemies[j].previousX;
       }
