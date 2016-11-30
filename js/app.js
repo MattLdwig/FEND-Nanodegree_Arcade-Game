@@ -48,20 +48,17 @@ Enemy.prototype.update = function(dt) {
       /* if the player is in the first level, the bugs cross the screen
          and doesn't collide with the rocks. Otherwise they remain within the
          limits of the canvas and collide with the rocks */
-       switch (level) {
-         case 1:
-           if(this.x > this.endCanvas+100){
-             this.x = Math.floor((Math.random() * 100)-100);
-           }
-           break;
-        case 2:
-        case 3:
-        if (this.x > this.endCanvas || checkIfCollide()) {
-          this.moveRight = false;
-        }
-        default:
-            this.moveRight = true;
+       if(level === 1){
+         if (this.x > this.endCanvas+100){
+               this.x = Math.floor((Math.random() * 100)-100);
+          }
        }
+       else {
+         if (this.x > this.endCanvas || checkIfCollide()) {
+           this.moveRight = false;
+         }
+       }
+
     // if the bug move from right to left, display the proper sprite
   } else {
     this.sprite = 'images/enemy-bug-left.png';
