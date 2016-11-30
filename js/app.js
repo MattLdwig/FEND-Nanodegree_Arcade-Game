@@ -1,11 +1,8 @@
 "use strict";
-// Debug Function. Display the player coords
-var gg = function() {
-  console.log('X : ' + player.x + ' Y : ' + player.y);
-  console.log("previousX " + previousX + "previousY " + previousY);
-};
+
 // Global Variables definitions
 var playerWin = false;
+var gemCollected = 0;
 var level = 1;
 var numOfTry = 0;
 var previousX = [];
@@ -29,17 +26,18 @@ var Enemy = function(x, y, moveRight) {
       this.speed = 200;
       break;
     case 2:
-      this.speed = 200;
+      this.speed = 250;
       break;
     case 3:
-      this.speed = 200;
+      this.speed = 300;
       break;
+    default:
+      this.speed = 200;
   }
   this.sprite = 'images/enemy-bug.png';
 };
 
 // Updating function, call in each frame
-// todo Use the dt
 // todo Refactor the function
 Enemy.prototype.update = function(dt) {
   this.previousX = this.x;
@@ -98,6 +96,8 @@ var resetBugs = function(level) {
       allEnemies.push(new Enemy(303, -30, true));
       allEnemies.push(new Enemy(0, 53, true));
       break;
+      default:
+        alert("Oops, this level doesn't exist");
   }
 };
 
@@ -107,11 +107,9 @@ Enemy.prototype.render = function() {
 };
 
 // PLAYER DECLARATION
-// todo placer player.gem dans sa propre fonction
 var Player = function() {
   this.reset(808, 634);
   this.sprite = 'images/char-boy.png';
-  this.gem = 0;
 };
 
 /* On each input, stock the position of the player before moving,
@@ -136,7 +134,6 @@ Player.prototype.reset = function(x, y) {
 // Player Input Function
 Player.prototype.handleInput = function(key) {
   // Before moving, stock the position in variables
-  // todo Add the default property
   this.changePosition();
   switch (key) {
     case 'left':
@@ -153,9 +150,12 @@ Player.prototype.handleInput = function(key) {
       break;
     case 'esc':
     player.reset(808,634);
-    level = 1;
-    resetBugs(1);
-    itemsByLevel(1);
+      level = 1;
+      resetBugs(1);
+      itemsByLevel(1);
+      break;
+    default:
+    console.log('Key not attribued');
   }
   // Blocks the player if he reaches the limits of the canvas
   if (this.col < 0) this.col = 0;
@@ -175,7 +175,7 @@ Player.prototype.update = function(dt) {
     player.reset(808, 634);
     // if the player reach the exit coords in level 3, he win the game
     if (level === 3) {
-      playerWin = true;
+      return playerWin = true;
     }
     // Incrase the level ; Reset the bugs and the items
     level++;
@@ -201,8 +201,6 @@ Player.prototype.render = function() {
 
 // Initialise the player
 var player = new Player(808, 634);
-
-// ToDO Mettre l'ensemble des objets dans une seule et même fonction
 
 // GEMS DECLARATION
 var Gem = function(x, y) {
@@ -295,6 +293,8 @@ function itemsByLevel(level) {
       allGems.push(new Gem(303, -30));
       allGems.push(new Gem(808, 385));
       break;
+    default:
+      alert("Oops, this level doesn't exist");
   }
 }
 
@@ -314,9 +314,8 @@ var checkIfCollide = function() {
       avatar.top > items.bottom ||
       avatar.bottom < items.top);
   };
-  // Declare the player hitbox
+  // Declaration of the player hitbox
   var playerHitbox = new hitBox(player.x, player.y);
-  // todo Reorganiser la fonction pour ne pas doubler la création de hitbox
   // if the player hit a rock, call the player.block function
   for (var i = 0; i < allRocks.length; i++) {
     var rocksHitBox = new hitBox(allRocks[i].x, allRocks[i].y);
@@ -326,28 +325,24 @@ var checkIfCollide = function() {
     /* if a bug hit a rock, reverse direction and bring it back one frame for
        avoid the collision loop */
     for (var j = 0; j < allEnemies.length; j++) {
-      var EnemiesHitBox = new hitBox(allEnemies[j].x, allEnemies[j].y);
+      var EnemiesHitBox = new hitBox(allEnemies[j].x-30, allEnemies[j].y-20);
       if (checkCollision(EnemiesHitBox, rocksHitBox)) {
         allEnemies[j].moveRight = !allEnemies[j].moveRight;
         allEnemies[j].x = allEnemies[j].previousX;
       }
+      else if (checkCollision(playerHitbox, EnemiesHitBox)) {
+        player.reset(808, 634);
+        numOfTry++;
+        break;
+      }
     }
   }
-  // if the player hit a bug, reset him and increase numOfTry
-  for ( i = 0; i < allEnemies.length; i++) {
-    EnemiesHitBox = new hitBox(allEnemies[i].x - 30, allEnemies[i].y - 20);
-    if (checkCollision(playerHitbox, EnemiesHitBox)) {
-      player.reset(808, 634);
-      numOfTry++;
-      break;
-    }
-  }
-  /* if the player hit a gem, update player.gem, remove the gem of the array
+  /* if the player hit a gem, update gemCollected, remove the gem of the array
      and increase the speed of the bugs */
   for (i = 0; i < allGems.length; i++) {
     var gemsHitBox = new hitBox(allGems[i].x, (allGems[i].y - 50));
     if (checkCollision(playerHitbox, gemsHitBox)) {
-      player.gem += 1;
+      gemCollected += 1;
       allGems.splice(i, 1);
       for (i = 0; i < allEnemies.length; i++) {
         allEnemies[i].speed += 20;

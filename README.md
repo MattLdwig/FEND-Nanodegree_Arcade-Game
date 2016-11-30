@@ -14,6 +14,7 @@ Third project of Udacity's [Front-End Web Developer Nanodegree](https://www.udac
 ## How to play?
 
 Use the arrow keys from your keyboad to move your player.
+Pick up as many gems as you can and reach the exit.
 Use the ESC key for restart the game.
 
 ## License
