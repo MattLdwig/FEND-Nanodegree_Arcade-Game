@@ -20,7 +20,7 @@ function CharacterRender(){
     } else {
       ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.spriteWidth,this.spriteHeight);
     }
-  }
+  };
 }
 
 /* -------------------- ENEMIES -------------------- */
