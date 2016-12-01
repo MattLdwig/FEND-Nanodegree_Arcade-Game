@@ -1,14 +1,38 @@
 "use strict";
 
-// Global Variables definitions
-var playerWin = false;
-var gemCollected = 0;
-var level = 1;
-var numOfTry = 0;
-var previousX = [];
-var previousY = [];
+/* -------------------- Global -------------------- */
+/** Global variables definitions. */
 
-// ENEMY DECLARATION
+var playerWin = false,
+    gemCollected = 0,
+    level = 1,
+    numOfTry = 0,
+    previousX = [],
+    previousY = [],
+    tileWidth = 101,
+    tileHeight = 171;
+
+/** General render Method */
+
+function CharacterRender(){
+  this.render = function(){
+    if(this.spriteWidth === undefined || this.spriteHeight === undefined){
+      ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    } else {
+      ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.spriteWidth,this.spriteHeight);
+    }
+  }
+}
+
+/* -------------------- ENEMIES -------------------- */
+
+/**
+* @class Create the enemy class
+* @description Create the enemies, initilizing the position and setup the speed
+* @param {number} x position
+* @param {number} y position
+ *@param {boolean} if true the enemy move from left to right, else from right to left
+*/
 
 var Enemy = function(x, y, moveRight) {
   this.moveRight = moveRight;
@@ -16,11 +40,13 @@ var Enemy = function(x, y, moveRight) {
   this.startCanvas = 0;
   this.x = x;
   this.y = y;
-  // previousX used to bring the enemy back a frame and avoid collision loops
+  /** previousX used to bring the enemy back a frame and avoid collision loops */
   this.previousX = x;
   this.width = 71;
   this.height = 50;
-  // Setup speed depending on the level
+  this.inheritFrom = CharacterRender;
+  this.inheritFrom();
+  /** Setup speed depending on the level */
   switch (level) {
     case 1:
       this.speed = 220;
@@ -37,11 +63,16 @@ var Enemy = function(x, y, moveRight) {
   this.sprite = 'images/enemy-bug.png';
 };
 
-// Updating function, call in each frame
-// todo Refactor the function
+/**
+* @function Updating enemy function
+* @description Update the enemy's position and display the proper sprite.
+* If the player is in the first level, let the enemy cross the rocks and
+* the screen. Otherwise, check if it collide.
+* @param {number} dt delta time
+*/
+
 Enemy.prototype.update = function(dt) {
   this.previousX = this.x;
-  // if the bug move from left to right, display the proper sprite
   if (this.moveRight) {
     this.x += this.speed * dt;
     this.sprite = 'images/enemy-bug.png';
@@ -58,23 +89,25 @@ Enemy.prototype.update = function(dt) {
            this.moveRight = false;
          }
        }
-
-    // if the bug move from right to left, display the proper sprite
   } else {
     this.sprite = 'images/enemy-bug-left.png';
     this.x -= this.speed * dt;
-    /* if the bug hit the begin of the canvas or hit a rock, bug move to left to right
-       and display the proper sprite */
-    if (this.x < this.startCanvas || checkIfCollide()) {
-      this.moveRight = true;
-    }
+      if (this.x < this.startCanvas || checkIfCollide()) {
+        this.moveRight = true;
+      }
   }
 };
 
-
+/** Array where the enemies are stored */
 var allEnemies = [];
 
-// Empty allEnemies and push the bugs in the array depending on the level
+/**
+* @function reset enemies function
+* @description Empty the allEnemies array and push the new enemies according to
+* the level
+* @param {number} level
+*/
+
 var resetBugs = function(level) {
   allEnemies = [];
   switch (level) {
@@ -111,29 +144,41 @@ var resetBugs = function(level) {
   }
 };
 
-// Render function
-Enemy.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
+/* -------------------- PLAYER -------------------- */
 
-// PLAYER DECLARATION
+/**
+* @class Create the player class
+* @description Create the player and initilizing his position
+*/
+
 var Player = function() {
   this.reset(808, 634);
   this.sprite = 'images/char-boy.png';
+  this.inheritFrom = CharacterRender;
+  this.inheritFrom();
 };
 
-/* On each input, stock the position of the player before moving,
-   Used for block the player when he hit a rock */
-// ToDo Régler le problème d'animation.
+/**
+* @function
+* @description Store the position of the player before moving.
+* Used for block the player when he hit a rock
+*/
+
 Player.prototype.changePosition = function() {
   previousX = this.row;
   previousY = this.col;
 };
 
-// Reset function
+/**
+* @function Reset player function
+* @description Reset the player to his initial position
+* @param {number} x position
+* @param {number} y position
+*/
+
 Player.prototype.reset = function(x, y) {
-  this.width = 101;
-  this.height = 171;
+  this.width = tileWidth;
+  this.height = tileHeight;
   this.col = 8;
   this.row = 8;
   this.movable = true;
@@ -141,9 +186,14 @@ Player.prototype.reset = function(x, y) {
   this.y = y;
 };
 
-// Player Input Function
+/**
+* @function Handle input player function
+* @description Receive the user input.
+* @param {string} key pressed by the user
+*/
+
 Player.prototype.handleInput = function(key) {
-  // Before moving, stock the position in variables
+  /** Before moving, store the position in variables */
   this.changePosition();
   switch (key) {
     case 'left':
@@ -159,7 +209,7 @@ Player.prototype.handleInput = function(key) {
       this.row--;
       break;
     case 'esc':
-    player.reset(808,634);
+    this.reset(808,634);
       level = 1;
       resetBugs(1);
       itemsByLevel(1);
@@ -167,90 +217,99 @@ Player.prototype.handleInput = function(key) {
     default:
     console.log('Key not attribued');
   }
-  // Blocks the player if he reaches the limits of the canvas
+  /** Blocks the player if he reaches the limits of the canvas */
   if (this.col < 0) this.col = 0;
   if (this.col > 9) this.col = 9;
   if (this.row < 0) this.row = 0;
   if (this.row > 8) this.row = 8;
 };
 
-// Update function
+/**
+* @function Updating player function
+* @description Update the player's position. If the player reach the exit tile,
+* reset his position, increase the level and call the itemsByLevel and resetBugs
+* methods for display the appropriate items.
+* If the player reach the exit in level 3, he win the game.
+* @param {number} dt delta time
+*/
+
 Player.prototype.update = function(dt) {
-  this.x = 101 * this.col;
-  // Move the sprite 30px to the top for better sprite centering
+  this.x = tileWidth * this.col;
+  /** Move the sprite 30px to the top for better sprite centering */
   this.y = (83 * this.row) - 30;
-  // if the player reach the exit coords, reset the player position
   if (this.y === -30 && this.movable && this.x === 101) {
     this.movable = false;
-    player.reset(808, 634);
-    // if the player reach the exit coords in level 3, he win the game
+    this.reset(808, 634);
     if (level === 3) {
       return playerWin = true;
     }
-    // Incrase the level ; Reset the bugs and the items
     level++;
     itemsByLevel(level);
     resetBugs(level);
     return true;
   }
-  // Check if the player collide
+  /** Check if the player collide */
   checkIfCollide();
   return false;
 };
 
-// if the player hit a rock, block him
+/**
+* @function Block player method
+* @description Bring the player back to his previous position.
+*/
 Player.prototype.block = function() {
   this.row = previousX;
   this.col = previousY;
 };
 
-// Player Render Function
-Player.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-// Initialise the player
+/** Initialise the player */
 var player = new Player(808, 634);
 
-// GEMS DECLARATION
+
+/* -------------------- GEMS AND ROCKS -------------------- */
+
+/**
+* @class Create the gem class
+* @class Create the rock class
+* @description Create the gem and the rock. Initilizing their positions.
+* For Gem, spriteWidth & spriteHeight used for better rendering.
+* @param {number} x position
+* @param {number} y position
+*/
 var Gem = function(x, y) {
   this.sprite = 'images/gem-blue.png';
   this.x = x + 30;
   this.y = y + 50;
-  this.width = 101;
-  this.height = 171;
-  // spriteWidth & spriteHeight used for better rendering
+  this.width = tileWidth;
+  this.height = tileHeight;
   this.spriteWidth = this.width / 2;
   this.spriteHeight = this.height / 2;
+  this.inheritFrom = CharacterRender;
+  this.inheritFrom();
 };
-
-// Gem Render Function
-Gem.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.spriteWidth, this.spriteHeight);
-};
-
-// Array used for stock the gems
-var allGems = [];
-
-// ROCKS DECLARATION
 
 var Rock = function(x, y) {
   this.sprite = 'images/Rock.png';
   this.x = x;
   this.y = y;
-  this.width = 101;
-  this.height = 171;
+  this.width = tileWidth;
+  this.height = tileHeight;
+  this.inheritFrom = CharacterRender;
+  this.inheritFrom();
 };
 
-// Rock Render Function
-Rock.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-// Array used for stock the rocks
+/** Array where the rocks are stored */
 var allRocks = [];
-/* Empty rocks and gems arrays and
-   push all items in the arrays depending on the level*/
+
+/** Array where the gems are stored */
+var allGems = [];
+
+/**
+* @function Gems and Rocks initilization method
+* @description Empty the rocks and gems array then push the appropriate items
+* according to the level.
+* @param {number} level
+*/
 function itemsByLevel(level) {
   allRocks = [];
   allGems = [];
@@ -308,31 +367,39 @@ function itemsByLevel(level) {
   }
 }
 
-/* COLLISION FONCTION */
+/* -------------------- COLLISION -------------------- */
+
+/** Method to check if the player or a bug collides width something */
+
 var checkIfCollide = function() {
-  // Draw the general hitbox
+
+  /** Draw the general hitbox */
   var hitBox = function(left, top) {
     this.left = left + 35;
     this.top = top + 20;
     this.right = this.left + 65;
     this.bottom = this.top + 62;
   };
-  // 2D Collision Function, from MDN
+
+  /** 2D Collision method, from MDN */
   var checkCollision = function(avatar, items) {
     return !(avatar.left > items.right ||
       avatar.right < items.left ||
       avatar.top > items.bottom ||
       avatar.bottom < items.top);
   };
-  // Declaration of the player hitbox
+
+  /** Declaration of the player hitbox */
   var playerHitbox = new hitBox(player.x, player.y);
-  // if the player hit a rock, call the player.block function
+
+  /** if the player hit a rock, call the player.block method */
   for (var i = 0; i < allRocks.length; i++) {
     var rocksHitBox = new hitBox(allRocks[i].x, allRocks[i].y);
     if (checkCollision(playerHitbox, rocksHitBox)) {
       player.block();
     }
-    /* if a bug hit a rock, reverse direction and bring it back one frame for
+
+    /** if a bug hit a rock, reverse direction and bring it back one frame for
        avoid the collision loop */
     for (var j = 0; j < allEnemies.length; j++) {
       var EnemiesHitBox = new hitBox(allEnemies[j].x-30, allEnemies[j].y-20);
@@ -340,6 +407,7 @@ var checkIfCollide = function() {
         allEnemies[j].moveRight = !allEnemies[j].moveRight;
         allEnemies[j].x = allEnemies[j].previousX;
       }
+      /* if the player hit a bug, reset the player and increase the number of tries */
       else if (checkCollision(playerHitbox, EnemiesHitBox)) {
         player.reset(808, 634);
         numOfTry++;
@@ -347,6 +415,7 @@ var checkIfCollide = function() {
       }
     }
   }
+
   /* if the player hit a gem, update gemCollected, remove the gem of the array
      and increase the speed of the bugs */
   for (i = 0; i < allGems.length; i++) {
@@ -361,6 +430,12 @@ var checkIfCollide = function() {
     }
   }
 };
+
+/* -------------------- KEYBOARD INPUT -------------------- */
+
+/**
+* @description listen the key presses by the user and sends the keys to the player.handleInput() method
+*/
 
 document.addEventListener('keyup', function(e) {
   var allowedKeys = {

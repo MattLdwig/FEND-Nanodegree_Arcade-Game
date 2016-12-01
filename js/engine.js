@@ -129,7 +129,7 @@ var Engine = (function(global) {
          * we're using them over and over.
          */
         ctx.drawImage(Resources.get(rowImages[row][col]), col * 101, row * 83);
-        // when the player win, clear the canvas and display the final message
+        /** when the player win, clear the canvas and display the final message */
         if (playerWin) {
           ctx.clearRect(0, 0, 1010, 909);
           ctx.fillStyle = 'Black';
