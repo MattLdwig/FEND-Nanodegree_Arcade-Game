@@ -136,7 +136,7 @@ var Engine = (function(global) {
           ctx.font = '30px Roboto';
           ctx.fillText('Congratulation !', 0, 150);
           ctx.fillText('You reach the end of the game !', 0, 200);
-          ctx.fillText('You have been hit ' + numOfTry + ' times and you get ' + gemCollected + ' of the 15 gems.',
+          ctx.fillText('You get ' + gemCollected + ' of the 15 gems.',
             0, 250);
           ctx.fillText('Press F5 for retry!', 0, 300);
           ctx.fillText('Thanks for playing :)', 0, 350);

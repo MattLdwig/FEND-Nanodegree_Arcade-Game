@@ -6,7 +6,6 @@
 var playerWin = false,
     gemCollected = 0,
     level = 1,
-    numOfTry = 0,
     previousX = [],
     previousY = [],
     tileWidth = 101,
@@ -410,7 +409,6 @@ var checkIfCollide = function() {
       /* if the player hit a bug, reset the player and increase the number of tries */
       else if (checkCollision(playerHitbox, EnemiesHitBox)) {
         player.reset(808, 634);
-        numOfTry++;
         break;
       }
     }
