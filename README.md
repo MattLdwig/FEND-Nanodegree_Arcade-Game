@@ -7,7 +7,7 @@ Third project of Udacity's [Front-End Web Developer Nanodegree](https://www.udac
 ## How to run ?
 
 1. Clone this repo :
-`$ git clone https://github.com/Wapika/frontend-nanodegree-arcade-game.git`
+`$ git clone https://github.com/MattLdwig/FEND-Nanodegree_Arcade-Game.git`
 2. Open index.html
 3. Player
 
